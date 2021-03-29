@@ -2,7 +2,12 @@ const { response } = require('express')
 const express = require('express')
 const app = express()
 
+var morgan = require('morgan')
+
 app.use(express.json())
+morgan.token('body', (req, res) => JSON.stringify(req.body))
+app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body'))
+
 
 let persons = [
     {
@@ -56,7 +61,7 @@ app.post('/api/persons', (req, res) => {
             error: 'content missing'
         })
     }
-    
+
     persons.map(person => {
         if (person.name === body.name) {
             dupe = true
