@@ -2,6 +2,8 @@ const { response } = require('express')
 const express = require('express')
 const app = express()
 
+app.use(express.json())
+
 let persons = [
     {
         id: 1,
@@ -45,6 +47,40 @@ app.delete('/api/persons/:id', (req, res) => {
     res.status(204).end()
 })
 
+app.post('/api/persons', (req, res) => {
+    const body = req.body
+    let dupe = false
+    
+    if (!body.name || !body.number) {
+        return res.status(400).json({
+            error: 'content missing'
+        })
+    }
+    
+    persons.map(person => {
+        if (person.name === body.name) {
+            dupe = true
+        }
+    })
+
+    if (dupe) {
+        return res.status(400).json({
+            error: 'Name must be unique'
+        })
+    }
+    
+    const person = {
+        id: generateId(5000),
+        name: body.name,
+        number: body.number
+    }
+    console.log(typeof body.name)
+    console.log(typeof persons[1].name)
+    persons = persons.concat(person)
+
+    res.json(person)
+})
+
 app.get('/info', (req, res) => {
     let personAmount = persons.length
     var d = new Date()
@@ -52,6 +88,10 @@ app.get('/info', (req, res) => {
               <h1></h1>
               <b2>${d}</b2>`)
 })
+
+const generateId = (max) => {
+    return Math.floor(Math.random() * Math.floor(max))
+}
 
 const PORT = 3001
 app.listen(PORT, () => {
