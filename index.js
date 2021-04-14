@@ -1,4 +1,6 @@
+require('dotenv').config()
 const express = require('express')
+
 const app = express()
 app.use(express.static('build'))
 
@@ -11,42 +13,26 @@ app.use(express.json())
 morgan.token('body', (req, res) => JSON.stringify(req.body))
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body'))
 
-
-let persons = [
-    {
-        id: 1,
-        name: "Arto Hellas",
-        number: "1353546324"
-    },
-    {
-        id: 2,
-        name: "Ada Lovelace",
-        number: "06435134234"
-    },
-    {
-        id: 3,
-        name: "Dan Abramov",
-        number: "0643534675"
-    },
-    {
-        id: 4,
-        name: "Mary Poppendick",
-        number:"46594775657"
-    }
-]
+const Person = require('./models/person')
 
 app.get('/api/persons', (req, res) => {
-    res.json(persons)
+    Person.find({}).then(persons => {
+        res.json(persons)
+      })
 })
 
 app.get('/api/persons/:id', (req, res) => {
-    const id = Number(req.params.id)
-    const person = persons.find(person => person.id === id)
-    if (person) {
-        res.json(person)
-    } else {
+    const id = String(req.params.id)
+    Person.find({}).then(result => {
+        result.forEach(prsn => {
+            console.log(prsn.id)
+            if (prsn.id === id) {
+                res.json(prsn)
+                return
+            }
+        })
         res.status(404).end()
-    }
+    })
 })
 
 app.delete('/api/persons/:id', (req, res) => {
