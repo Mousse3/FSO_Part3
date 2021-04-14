@@ -43,34 +43,21 @@ app.delete('/api/persons/:id', (req, res) => {
 
 app.post('/api/persons', (req, res) => {
     const body = req.body
-    let dupe = false
     
     if (!body.name || !body.number) {
         return res.status(400).json({
             error: 'content missing'
         })
     }
-
-    persons.map(person => {
-        if (person.name === body.name) {
-            dupe = true
-        }
-    })
-
-    if (dupe) {
-        return res.status(400).json({
-            error: 'Name must be unique'
-        })
-    }
     
-    const person = {
-        id: generateId(5000),
+    const person = new Person({
         name: body.name,
         number: body.number
-    }
-    console.log(typeof body.name)
-    console.log(typeof persons[1].name)
-    persons = persons.concat(person)
+    })
+
+    person.save().then(result => {
+        console.log('note saved!')
+    })
 
     res.json(person)
 })
