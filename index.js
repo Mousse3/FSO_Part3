@@ -64,11 +64,12 @@ app.post('/api/persons', (req, res) => {
 })
 
 app.get('/info', (req, res) => {
-    let personAmount = persons.length
-    var d = new Date()
-    res.send(`<b1>Phonebook has info for ${personAmount} people</b1>
-              <h1></h1>
-              <b2>${d}</b2>`)
+    Person.countDocuments({}, function( err, count){
+        var d = new Date()
+        res.send(`<b1>Phonebook has info for ${count} people</b1>
+                  <h1></h1>
+                  <b2>${d}</b2>`)
+    })
 })
 
 const unknownEndpoint = (req, res) => {
