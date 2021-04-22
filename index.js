@@ -11,16 +11,16 @@ var morgan = require('morgan')
 
 app.use(express.json())
 
-morgan.token('body', (req, res) => JSON.stringify(req.body))
+morgan.token('body', (req) => JSON.stringify(req.body))
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body'))
 
 const Person = require('./models/person')
-const { response } = require('express')
+
 
 app.get('/api/persons', (req, res) => {
     Person.find({}).then(persons => {
         res.json(persons)
-      })
+    })
 })
 
 app.get('/api/persons/:id', (req, res, next) => {
@@ -37,7 +37,7 @@ app.get('/api/persons/:id', (req, res, next) => {
 
 app.delete('/api/persons/:id', (req, res, next) => {
     Person.findByIdAndRemove(req.params.id)
-        .then(person => {
+        .then(() => {
             res.status(204).end()
         })
         .catch(error => next(error))
@@ -45,13 +45,13 @@ app.delete('/api/persons/:id', (req, res, next) => {
 
 app.post('/api/persons', (req, res, next) => {
     const body = req.body
-    
+
     if (!body.name || !body.number) {
         return res.status(400).json({
             error: 'content missing'
         })
     }
-    
+
     const person = new Person({
         name: body.name,
         number: body.number
@@ -60,7 +60,7 @@ app.post('/api/persons', (req, res, next) => {
     person.save().then(savedPerson => {
         res.json(savedPerson.toJSON())
     })
-    .catch(error => next(error))
+        .catch(error => next(error))
 })
 
 app.get('/info', (req, res) => {
@@ -84,7 +84,7 @@ const errorHandler = (error, req, res, next) => {
     if (error.name === 'CastError') {
         return res.status(400).send({ error: 'malformatted id' })
     } else if (error.name === 'ValidationError') {
-        return res.status(400).json({ error: error.message})
+        return res.status(400).json({ error: error.message })
     }
 
     next(error)
